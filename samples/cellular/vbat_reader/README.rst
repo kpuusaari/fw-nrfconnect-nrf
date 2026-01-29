@@ -7,7 +7,7 @@ Cellular: VBAT Reader
    :local:
    :depth: 2
 
-The VBAT Reader sample demonstrates how to send the AT%XVBAT command to the nRF9151 device to read the battery voltage and print the response to the console.
+The VBAT Reader sample demonstrates how to send the AT%XVBAT command to an nRF91 Series device to read the battery voltage and print the response to the console.
 
 Requirements
 ************

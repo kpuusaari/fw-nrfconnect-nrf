@@ -23,14 +23,18 @@ int main(void)
 	}
 
 	printk("Sending AT%%XVBAT command...\n");
-	
+
 	err = nrf_modem_at_cmd(response, sizeof(response), "AT%%XVBAT");
 	if (err) {
 		printk("AT%%XVBAT command failed, error: %d\n", err);
+		nrf_modem_lib_shutdown();
 		return 0;
 	}
 
 	printk("Response: %s", response);
+
+	printk("Shutting down modem\n");
+	nrf_modem_lib_shutdown();
 
 	return 0;
 }
