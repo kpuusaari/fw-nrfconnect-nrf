@@ -25,7 +25,12 @@ The VBAT Reader sample initializes the modem library and performs two main opera
 
 1. **Battery Voltage Query**: Sends the AT%XVBAT command to query the battery voltage. The response from the modem is printed to the console using printk.
 
-2. **RF Receiver Test**: Performs a systematic test of the RF receiver across LTE Band 12 downlink frequencies (729-746 MHz). For each 1 MHz frequency step in this range, the sample:
+2. **RF Receiver Test**: Performs a systematic test of the RF receiver across LTE Band 12 downlink frequencies (729-746 MHz) with multiple input power levels. The test sweeps through:
+   
+   - **Power levels**: -65, -75, -85, -95, -105, -115, -125 dBm (7 levels)
+   - **Frequencies**: 729-746 MHz in 1 MHz steps (18 frequencies per power level)
+   
+   For each power level and frequency combination, the sample:
    
    - Sends an AT%XRFTEST RX ON command to activate the receiver
    - Prints the response showing received signal measurements
@@ -55,7 +60,7 @@ After programming the sample to your development kit, test it by performing the 
 1. Press the reset button on the nRF91 Series DK to reboot the kit and start the sample.
 #. :ref:`Connect to the nRF91 Series DK with the Serial Terminal app <serial_terminal_connect>`.
 #. Observe the output showing the AT%XVBAT command response.
-#. Observe the AT%XRFTEST loop testing each frequency from 729 MHz to 746 MHz in Band 12.
+#. Observe the AT%XRFTEST loop testing each frequency from 729 MHz to 746 MHz in Band 12 at multiple power levels.
 
 
 Sample output
@@ -71,17 +76,27 @@ The sample will output something similar to:
    OK
 
    Starting AT%XRFTEST loop for band 12 (729-746 MHz)
+
+   === Testing with input power: -65 dBm ===
    Frequency: Power (dBm), Headroom (dBFS)
    729 MHz: -65.00 dBm, -15 dBFS
    730 MHz: -66.00 dBm, -15 dBFS
    731 MHz: -65.50 dBm, -15 dBFS
-   732 MHz: -67.25 dBm, -16 dBFS
-   733 MHz: -66.75 dBm, -15 dBFS
-   [... continues for each MHz from 734 to 746 ...]
+   [... continues for each MHz from 732 to 746 ...]
+
+   === Testing with input power: -75 dBm ===
+   Frequency: Power (dBm), Headroom (dBFS)
+   729 MHz: -75.00 dBm, -16 dBFS
+   730 MHz: -76.00 dBm, -16 dBFS
+   [... continues for each MHz from 731 to 746 ...]
+
+   === Testing with input power: -85 dBm ===
+   [... continues for power levels -95, -105, -115, -125 dBm ...]
 
    AT%XRFTEST loop completed
    Shutting down modem
 
+The sample tests 7 different input power levels (-65, -75, -85, -95, -105, -115, -125 dBm).
 The power values are converted from q8 format (divided by 256) to display the received signal strength in dBm.
 The headroom values indicate the receiver's dynamic range margin in dBFS (decibels relative to full scale).
 
