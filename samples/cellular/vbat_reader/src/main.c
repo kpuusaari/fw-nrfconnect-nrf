@@ -55,8 +55,13 @@ int main(void)
 		/* Parse response: %XRFTEST: <antenna_power>,<headroom> */
 		if (sscanf(response, "%%XRFTEST: %d,%d", &antenna_power_q8, &headroom_dbfs) == 2) {
 			/* Convert antenna_power from q8 format to dBm (divide by 256) */
-			float power_dbm = (float)antenna_power_q8 / 256.0f;
-			printk("%d MHz: %.2f dBm, %d dBFS\n", freq_mhz, power_dbm, headroom_dbfs);
+			/* Since printk doesn't support %f, split into integer and fractional parts */
+			int power_dbm_int = antenna_power_q8 / 256;
+			int power_dbm_frac = ((antenna_power_q8 % 256) * 100) / 256;
+			if (power_dbm_frac < 0) {
+				power_dbm_frac = -power_dbm_frac;
+			}
+			printk("%d MHz: %d.%02d dBm, %d dBFS\n", freq_mhz, power_dbm_int, power_dbm_frac, headroom_dbfs);
 		} else {
 			printk("%d MHz: Failed to parse response\n", freq_mhz);
 		}
