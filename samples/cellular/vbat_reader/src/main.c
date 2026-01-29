@@ -35,25 +35,31 @@ int main(void)
 
 	/* AT%XRFTEST loop for band 12 (729-746 MHz) */
 	printk("\nStarting AT%%XRFTEST loop for band 12 (729-746 MHz)\n");
+	printk("Frequency: Power (dBm), Headroom (dBFS)\n");
 	
 	/* Band 12, LTE-M mode, test each MHz from 729 to 746 */
 	for (int freq_mhz = 729; freq_mhz <= 746; freq_mhz++) {
 		int freq_100khz = freq_mhz * 10;  /* Convert MHz to 100 kHz units */
+		int antenna_power_q8;
+		int headroom_dbfs;
 		
 		/* RX ON command: AT%XRFTEST=0,1,<band>,<freq>,<power>,<mode> */
-		printk("\n--- Testing %d MHz ---\n", freq_mhz);
-		printk("Sending AT%%XRFTEST=0,1,12,%d,-65,1 (RX ON)\n", freq_100khz);
-		
 		err = nrf_modem_at_cmd(response, sizeof(response), 
 		                       "AT%%XRFTEST=0,1,12,%d,-65,1", freq_100khz);
 		if (err) {
-			printk("AT%%XRFTEST RX ON failed at %d MHz, error: %d\n", 
-			       freq_mhz, err);
+			printk("%d MHz: RX ON failed (error: %d)\n", freq_mhz, err);
 			/* Skip OFF command if ON failed, continue to next frequency */
 			continue;
 		}
 		
-		printk("Response: %s", response);
+		/* Parse response: %XRFTEST: <antenna_power>,<headroom> */
+		if (sscanf(response, "%%XRFTEST: %d,%d", &antenna_power_q8, &headroom_dbfs) == 2) {
+			/* Convert antenna_power from q8 format to dBm (divide by 256) */
+			float power_dbm = (float)antenna_power_q8 / 256.0f;
+			printk("%d MHz: %.2f dBm, %d dBFS\n", freq_mhz, power_dbm, headroom_dbfs);
+		} else {
+			printk("%d MHz: Failed to parse response\n", freq_mhz);
+		}
 		
 		/* Small delay between ON and OFF */
 		k_msleep(100);
@@ -61,8 +67,6 @@ int main(void)
 		/* RX OFF command: AT%XRFTEST=0,0 */
 		err = nrf_modem_at_cmd(response, sizeof(response), "AT%%XRFTEST=0,0");
 		if (err) {
-			printk("AT%%XRFTEST RX OFF failed at %d MHz, error: %d\n", 
-			       freq_mhz, err);
 			/* Try to force OFF before continuing */
 			k_msleep(100);
 			nrf_modem_at_cmd(response, sizeof(response), "AT%%XRFTEST=0,0");

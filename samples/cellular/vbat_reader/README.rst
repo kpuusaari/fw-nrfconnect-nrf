@@ -71,21 +71,19 @@ The sample will output something similar to:
    OK
 
    Starting AT%XRFTEST loop for band 12 (729-746 MHz)
-
-   --- Testing 729 MHz ---
-   Sending AT%XRFTEST=0,1,12,7290,-65,1 (RX ON)
-   Response: %XRFTEST: -16640,-15
-   OK
-
-   --- Testing 730 MHz ---
-   Sending AT%XRFTEST=0,1,12,7300,-65,1 (RX ON)
-   Response: %XRFTEST: -16896,-15
-   OK
-
-   [... continues for each MHz from 731 to 746 ...]
+   Frequency: Power (dBm), Headroom (dBFS)
+   729 MHz: -65.00 dBm, -15 dBFS
+   730 MHz: -66.00 dBm, -15 dBFS
+   731 MHz: -65.50 dBm, -15 dBFS
+   732 MHz: -67.25 dBm, -16 dBFS
+   733 MHz: -66.75 dBm, -15 dBFS
+   [... continues for each MHz from 734 to 746 ...]
 
    AT%XRFTEST loop completed
    Shutting down modem
+
+The power values are converted from q8 format (divided by 256) to display the received signal strength in dBm.
+The headroom values indicate the receiver's dynamic range margin in dBFS (decibels relative to full scale).
 
 
 Dependencies
