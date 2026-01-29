@@ -33,6 +33,12 @@ Building and running
 
 .. include:: /includes/build_and_run_ns.txt
 
+To build the sample for the nRF9151 DK, use the following command:
+
+.. code-block:: console
+
+   west build -b nrf9151dk/nrf9151/ns
+
 
 Testing
 =======
