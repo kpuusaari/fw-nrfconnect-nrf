@@ -49,9 +49,11 @@ int main(void)
 		if (err) {
 			printk("AT%%XRFTEST RX ON failed at %d MHz, error: %d\n", 
 			       freq_mhz, err);
-		} else {
-			printk("Response: %s", response);
+			/* Skip OFF command if ON failed, continue to next frequency */
+			continue;
 		}
+		
+		printk("Response: %s", response);
 		
 		/* Small delay between ON and OFF */
 		k_msleep(100);
@@ -61,6 +63,9 @@ int main(void)
 		if (err) {
 			printk("AT%%XRFTEST RX OFF failed at %d MHz, error: %d\n", 
 			       freq_mhz, err);
+			/* Try to force OFF before continuing */
+			k_msleep(100);
+			nrf_modem_at_cmd(response, sizeof(response), "AT%%XRFTEST=0,0");
 		}
 	}
 	
