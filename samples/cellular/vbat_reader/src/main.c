@@ -33,6 +33,39 @@ int main(void)
 
 	printk("Response: %s", response);
 
+	/* AT%XRFTEST loop for band 12 (729-746 MHz) */
+	printk("\nStarting AT%%XRFTEST loop for band 12 (729-746 MHz)\n");
+	
+	/* Band 12, LTE-M mode, test each MHz from 729 to 746 */
+	for (int freq_mhz = 729; freq_mhz <= 746; freq_mhz++) {
+		int freq_100khz = freq_mhz * 10;  /* Convert MHz to 100 kHz units */
+		
+		/* RX ON command: AT%XRFTEST=0,1,<band>,<freq>,<power>,<mode> */
+		printk("\n--- Testing %d MHz ---\n", freq_mhz);
+		printk("Sending AT%%XRFTEST=0,1,12,%d,-65,1 (RX ON)\n", freq_100khz);
+		
+		err = nrf_modem_at_cmd(response, sizeof(response), 
+		                       "AT%%XRFTEST=0,1,12,%d,-65,1", freq_100khz);
+		if (err) {
+			printk("AT%%XRFTEST RX ON failed at %d MHz, error: %d\n", 
+			       freq_mhz, err);
+		} else {
+			printk("Response: %s", response);
+		}
+		
+		/* Small delay between ON and OFF */
+		k_msleep(100);
+		
+		/* RX OFF command: AT%XRFTEST=0,0 */
+		err = nrf_modem_at_cmd(response, sizeof(response), "AT%%XRFTEST=0,0");
+		if (err) {
+			printk("AT%%XRFTEST RX OFF failed at %d MHz, error: %d\n", 
+			       freq_mhz, err);
+		}
+	}
+	
+	printk("\nAT%%XRFTEST loop completed\n");
+
 	printk("Shutting down modem\n");
 	nrf_modem_lib_shutdown();
 

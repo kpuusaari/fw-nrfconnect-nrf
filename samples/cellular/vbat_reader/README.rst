@@ -1,13 +1,13 @@
 .. _vbat_reader_sample:
 
-Cellular: VBAT Reader
-#####################
+Cellular: VBAT Reader and RF Test
+##################################
 
 .. contents::
    :local:
    :depth: 2
 
-The VBAT Reader sample demonstrates how to send the AT%XVBAT command to an nRF91 Series device to read the battery voltage and print the response to the console.
+The VBAT Reader sample demonstrates how to send the AT%XVBAT command to an nRF91 Series device to read the battery voltage and print the response to the console. Additionally, it performs RF receiver tests across LTE Band 12 frequencies.
 
 Requirements
 ************
@@ -21,10 +21,17 @@ The sample supports the following development kits:
 Overview
 ********
 
-The VBAT Reader sample initializes the modem library and sends the AT%XVBAT command to query the battery voltage.
-The response from the modem is then printed to the console using printk.
+The VBAT Reader sample initializes the modem library and performs two main operations:
 
-The AT%XVBAT command returns the battery voltage measurement from the modem.
+1. **Battery Voltage Query**: Sends the AT%XVBAT command to query the battery voltage. The response from the modem is printed to the console using printk.
+
+2. **RF Receiver Test**: Performs a systematic test of the RF receiver across LTE Band 12 downlink frequencies (729-746 MHz). For each 1 MHz frequency step in this range, the sample:
+   
+   - Sends an AT%XRFTEST RX ON command to activate the receiver
+   - Prints the response showing received signal measurements
+   - Sends an AT%XRFTEST RX OFF command to deactivate the receiver
+
+The AT%XVBAT command returns the battery voltage measurement from the modem, while the AT%XRFTEST command enables RF receiver testing in LTE-M mode.
 
 Building and running
 ********************
@@ -45,9 +52,10 @@ Testing
 
 After programming the sample to your development kit, test it by performing the following steps:
 
-1. Press the reset button on the nRF91 Series DK to reboot the kit and start the VBAT Reader sample.
+1. Press the reset button on the nRF91 Series DK to reboot the kit and start the sample.
 #. :ref:`Connect to the nRF91 Series DK with the Serial Terminal app <serial_terminal_connect>`.
 #. Observe the output showing the AT%XVBAT command response.
+#. Observe the AT%XRFTEST loop testing each frequency from 729 MHz to 746 MHz in Band 12.
 
 
 Sample output
@@ -61,6 +69,23 @@ The sample will output something similar to:
    Sending AT%XVBAT command...
    Response: %XVBAT: 3500
    OK
+
+   Starting AT%XRFTEST loop for band 12 (729-746 MHz)
+
+   --- Testing 729 MHz ---
+   Sending AT%XRFTEST=0,1,12,7290,-65,1 (RX ON)
+   Response: %XRFTEST: -16640,-15
+   OK
+
+   --- Testing 730 MHz ---
+   Sending AT%XRFTEST=0,1,12,7300,-65,1 (RX ON)
+   Response: %XRFTEST: -16896,-15
+   OK
+
+   [... continues for each MHz from 731 to 746 ...]
+
+   AT%XRFTEST loop completed
+   Shutting down modem
 
 
 Dependencies
